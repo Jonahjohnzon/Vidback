@@ -84,7 +84,7 @@ const Search = async(req, res)=>{
         return res.json({data:[],auth:true})
     }
     
-         if(cate != "ASIANSERIES" && cate != "ANIME" && cate != "TVSHOWS" && cate != "MOVIES"){
+         if(cate != "ASIANSERIES" && cate != "ANIME" && cate != "TVSHOWS" && cate != "MOVIES"  && cate != "TELENOVELAS"){
            
         const resu = await movies.find({ title:{'$regex':`${letter}`, $options: 'i'}, $or: [
             {"type.a": type},
@@ -120,14 +120,14 @@ const getMoviescate = async(req,res)=>{
     try{
     const datah = await movies.find({category:"hollywood",series:false})
     const hollywood = datah.reverse().slice(0, 6)
-    const datab= await movies.find({category:"bollywood",series:false})
-    const bollywood = datab.reverse().slice(0, 6)
+    const datab= await movies.find({category:"telenovelas",series:true})
+    const telenovelas = datab.reverse().slice(0, 6)
     const datatop = await movies.find({top:true}).sort({"updatedAt": -1}).limit(3)
     const top = datatop.reverse().slice(0,3)
     const trailer = await upcoming.find({})
-    const asian = await movies.find({category:"asianseries"}).sort({"updatedAt": -1}).limit(5)
+    const asian = await movies.find({category:"asianseries"}).sort({"updatedAt": -1}).limit(6)
     const animes = await movies.find({category:"anime"}).sort({"updatedAt": -1}).limit(6)
-    const tv = await movies.find({category:"tvshows"}).sort({"updatedAt": -1}).limit(6)
+    const tv = await movies.find({category:"tvshows"}).sort({"updatedAt": -1}).limit(5)
     const latest= await movies.find({category:"anime"})
     const late = latest[latest.length - 1]
     const newest = animes
@@ -137,7 +137,7 @@ const getMoviescate = async(req,res)=>{
     
     let datak = asian
     
-    return res.json({hollywood,bollywood,tvshows,top,datak, dataa,trailer, newest,late})
+    return res.json({hollywood,telenovelas,tvshows,top,datak, dataa,trailer, newest,late})
     }
     catch(err){
         console.log(err)
@@ -808,7 +808,9 @@ const listMovies = async (req, res) =>{
     const id = req.params.category.toUpperCase()
     const limit = req.query.limit
     const start = req.query.start
-    if (id != "MOVIES" && id != "ASIANSERIES" && id != "ANIME" && id != "TVSHOWS")
+    console.log(id)
+
+    if (id != "MOVIES" && id != "ASIANSERIES" && id != "ANIME" && id != "TVSHOWS" && id != "TELENOVELAS")
     {
         try{
         const data = await movies.find({
@@ -818,7 +820,7 @@ const listMovies = async (req, res) =>{
           {"type.c": id}
         ],series:false
       })
-    
+     
         const length = data.length
         if(length < 1)
         {
@@ -868,6 +870,17 @@ const listMovies = async (req, res) =>{
     else if(id == "ANIME"){
         try{
         const data = await movies.find({category:"anime",series:true})
+          const length = data.length
+          const info = data.reverse().slice(start, limit)
+         
+          return res.json({info:info,length:length})
+      }catch(e){
+        console.log(e)
+      }
+    }
+    else if(id == "TELENOVELAS"){
+        try{
+        const data = await movies.find({category:"telenovelas",series:true})
           const length = data.length
           const info = data.reverse().slice(start, limit)
          
